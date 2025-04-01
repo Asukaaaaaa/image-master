@@ -1,5 +1,11 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  theme: light;
+};
+
+html {
+  @apply scroll-smooth;
+}
 
 /* body {
   margin: 0;

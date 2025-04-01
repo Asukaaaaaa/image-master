@@ -1,12 +1,14 @@
+import { invoke } from '@tauri-apps/api/core';
 import { ask, open } from '@tauri-apps/plugin-dialog';
-import { createContext, onMount } from 'solid-js';
+import { createContext, For, onMount } from 'solid-js';
 
 import './App.css';
 import { DnD } from './dnd';
 import { createStore, produce } from 'solid-js/store';
 
 type ImageObj = {
-  url: string;
+  blob_url: string;
+  local_path: string;
 };
 type GlobalStoreObj = {
   images?: ImageObj[];
@@ -26,6 +28,7 @@ const App = () => {
     {
       appendImage(val: ImageObj) {
         setState(produce((s) => s.images!.push(val)));
+        invoke('compress_image', { filepath: val.local_path });
       },
     },
   ] as const;
@@ -39,39 +42,38 @@ const App = () => {
       <div class="bg-gray-100">
         <DnD />
 
-        <div class="mx-auto px-4 py-8 container">
+        <div class="container mx-auto px-4 py-8 text-center">
           {/* <!-- 图片列表 --> */}
           <div class="gap-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 mb-24">
             {/* <!-- 示例图片条目 --> */}
-            {state.images?.map((val, i) => (
-              <div
-                class="group relative bg-white shadow-sm hover:shadow-md rounded-lg overflow-hidden transition-shadow duration-300"
-                key={i}
-              >
-                <div class="relative bg-gray-100 aspect-square">
-                  <img
-                    src={val.url}
-                    alt="示例图片"
-                    class="w-full h-full object-cover"
-                  />
-                  <div class="top-2 right-2 absolute">
-                    <input
-                      type="checkbox"
-                      class="opacity-0 checked:opacity-100 group-hover:opacity-100 border-gray-300 rounded focus:ring-blue-500 w-5 h-5 text-blue-600 transition-opacity cursor-pointer"
+            <For each={state.images}>
+              {(val) => (
+                <div class="group relative bg-white shadow-sm hover:shadow-md rounded-lg overflow-hidden transition-shadow duration-300">
+                  <div class="relative bg-gray-100 aspect-square">
+                    <img
+                      src={val.blob_url}
+                      alt="示例图片"
+                      class="w-full h-full object-cover"
                     />
+                    <div class="top-2 right-2 absolute">
+                      <input
+                        type="checkbox"
+                        class="opacity-0 checked:opacity-100 group-hover:opacity-100 border-gray-300 rounded focus:ring-blue-500 w-5 h-5 text-blue-600 transition-opacity cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  <div class="p-3">
+                    <p class="font-medium text-gray-900 text-sm truncate">
+                      example.jpg
+                    </p>
+                    <div class="flex justify-between mt-1 text-gray-500 text-xs">
+                      <span>2.4 MB</span>
+                      <span>2024-03-20</span>
+                    </div>
                   </div>
                 </div>
-                <div class="p-3">
-                  <p class="font-medium text-gray-900 text-sm truncate">
-                    example.jpg
-                  </p>
-                  <div class="flex justify-between mt-1 text-gray-500 text-xs">
-                    <span>2.4 MB</span>
-                    <span>2024-03-20</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              )}
+            </For>
           </div>
 
           {/* <!-- 底部操作栏 --> */}

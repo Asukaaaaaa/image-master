@@ -20,9 +20,9 @@ export const DnD = () => {
           const blob = new Blob([buffer], {
             type: `image/${path.extname(filepath)}`.toLowerCase(),
           });
-          const url = URL.createObjectURL(blob);
-          appendImage!({ url });
-          console.log('from tauri', file, filepath, stat, url);
+          const blob_url = URL.createObjectURL(blob);
+          appendImage!({ blob_url, local_path: filepath });
+          console.log('from tauri', file, filepath, stat, blob_url);
         }
       }
     });
