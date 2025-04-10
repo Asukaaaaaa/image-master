@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  theme: light;
+  theme: light --default;
 };
 
 html {

@@ -48,8 +48,16 @@ async fn compress_image(filepath: String) {
     println!("Writing to {output_path:?}");
 
     // let color_map = png::ColorType::from();
-    let new_image = image::ImageBuffer::from_raw(width, height, pixels).expect("无法创建新图片");
-    DynamicImage::ImageLuma8(new_image).save(output_path);
+    // let new_image = image::ImageBuffer::from_raw(width, height, pixels).expect("无法创建新图片");
+    // DynamicImage::ImageLuma8(new_image).save(output_path);
+
+    let mut state = lodepng::Encoder::new();
+    state.info_raw_mut().colortype = lodepng::ColorType::PALETTE;
+    state.info_raw_mut().try_set_bitdepth(8);
+    state.info_png_mut().color.colortype = lodepng::ColorType::PALETTE;
+    state.info_png_mut().color.try_set_bitdepth(8);
+    state.set_palette(&palette);
+    state.encode_file(output_path, &pixels, width as usize, height as usize);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -61,4 +69,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![greet, compress_image])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[tokio::test]
+async fn test_compress_png() {
+    compress_image("C:\\Users\\Yalla\\Downloads\\test.png".to_string()).await
 }

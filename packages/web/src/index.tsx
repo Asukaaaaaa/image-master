@@ -4,4 +4,5 @@ import App from './App';
 const root = document.getElementById('root');
 if (root) {
   render(() => <App />, root);
+  document.documentElement.dataset.theme = 'light';
 }

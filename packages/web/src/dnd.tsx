@@ -1,5 +1,6 @@
 import { webview, path } from '@tauri-apps/api';
 import { open } from '@tauri-apps/plugin-fs';
+import { open as open_dialog } from '@tauri-apps/plugin-dialog';
 import { curry, identity, pipe, tap } from 'ramda';
 import { onMount, useContext } from 'solid-js';
 import { GlobalContext } from './App';
@@ -12,18 +13,7 @@ export const DnD = () => {
     // ? tauri 事件和 web 事件只能触发其中一个，通过 dragDropEnabled 切换
     webview.getCurrentWebview().onDragDropEvent(async (e) => {
       if (e.payload.type === 'drop') {
-        for (const filepath of e.payload.paths) {
-          const file = await open(filepath);
-          const stat = await file.stat();
-          const buffer = new Uint8Array(stat.size);
-          await file.read(buffer);
-          const blob = new Blob([buffer], {
-            type: `image/${path.extname(filepath)}`.toLowerCase(),
-          });
-          const blob_url = URL.createObjectURL(blob);
-          appendImage!({ blob_url, local_path: filepath });
-          console.log('from tauri', file, filepath, stat, blob_url);
-        }
+        loadFiles(e.payload.paths);
       }
     });
   });
@@ -35,6 +25,33 @@ export const DnD = () => {
   const handleDrop = (e: DragEvent) => {
     console.log('from web', e, e.dataTransfer?.files);
   };
+  const handleClick = async (e: Event) => {
+    const paths = await open_dialog({
+      filters: [{ name: 'png-filter', extensions: ['png'] }],
+      multiple: true,
+    });
+    await loadFiles(paths ?? []);
+  };
+
+  async function loadFiles(paths: string[]) {
+    for (const filepath of paths) {
+      if (!/\.png$/i.test(filepath)) continue;
+      const file = await open(filepath);
+      const stat = await file.stat();
+      const buffer = new Uint8Array(stat.size);
+      await file.read(buffer);
+      const blob = new Blob([buffer], {
+        type: `image/${path.extname(filepath)}`.toLowerCase(),
+      });
+      const blob_url = URL.createObjectURL(blob);
+      appendImage!({
+        blob_url,
+        local_path: filepath,
+        stat: { ...stat, basename: await path.basename(filepath) },
+      });
+      console.log('from tauri', file, filepath, stat, blob_url);
+    }
+  }
 
   return (
     <div
@@ -44,6 +61,7 @@ export const DnD = () => {
       ondragover={preventDefaults}
       ondragleave={preventDefaults}
       ondrop={pipe(tap(preventDefaults), tap(handleDrop))}
+      onclick={handleClick}
     >
       <div class="mx-auto mb-4 text-blue-500">
         <svg
@@ -61,7 +79,7 @@ export const DnD = () => {
         </svg>
       </div>
       <p class="mb-2 text-gray-600">拖放文件至此或点击上传</p>
-      <p class="text-gray-500 text-sm">支持JPG, PNG格式，最大50MB</p>
+      <p class="text-gray-500 text-sm">支持PNG格式</p>
     </div>
   );
 };
