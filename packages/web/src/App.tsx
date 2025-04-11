@@ -19,7 +19,7 @@ dayjs.extend(pluginRelativeTime);
 
 import './App.css';
 import { DnD } from './dnd';
-import { useWatch } from './utils/reactivity';
+import { showOutputConfirm } from './components/modal-output-confirm';
 
 type ImageObj = {
   blob_url: string;
@@ -44,7 +44,6 @@ const App = () => {
     {
       appendImage(val: ImageObj) {
         setState('images', (images) => [...images!, val]);
-        invoke('compress_image', { filepath: val.local_path });
       },
     },
   ] as const;
@@ -93,6 +92,12 @@ const App = () => {
       const index = selected().findIndex((val) => val === target);
       setSelected(selected().toSpliced(index, 1));
     }
+  }
+  async function onCompressFiles() {
+    showOutputConfirm();
+    // for (const file of selected()) {
+    //   await invoke('compress_image', { filepath: file.local_path });
+    // }
   }
 
   return (
@@ -161,8 +166,9 @@ const App = () => {
               <div class="space-x-4">
                 <button
                   class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-4 py-2 rounded-md text-white transition-colors disabled:cursor-not-allowed"
-                  disabled={selected().length === 0}
+                  onclick={onCompressFiles}
                 >
+                  {/* disabled={selected().length === 0} */}
                   压缩图片
                 </button>
                 {/* <button

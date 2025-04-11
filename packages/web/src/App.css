@@ -3,6 +3,10 @@
   theme: light --default;
 };
 
+:root {
+  scrollbar-width: none;
+}
+
 html {
   @apply scroll-smooth;
 }
