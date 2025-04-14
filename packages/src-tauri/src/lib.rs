@@ -8,10 +8,10 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-async fn compress_image(filepath: String) {
-    println!("Compressing image at {filepath}");
+async fn compress_image(srcpath: String, tarpath: String) {
+    println!("Compressing image at {srcpath}");
 
-    let image = image::open(filepath.clone()).unwrap();
+    let image = image::open(srcpath.clone()).unwrap();
     let width = image.width();
     let height = image.height();
     let rgba_pixels = image
@@ -41,11 +41,11 @@ async fn compress_image(filepath: String) {
         res.quantization_quality().unwrap()
     );
 
-    let output_path = Path::new(filepath.as_str())
-        .parent()
-        .unwrap()
-        .join("output.png");
-    println!("Writing to {output_path:?}");
+    // let output_path = Path::new(srcpath.as_str())
+    //     .parent()
+    //     .unwrap()
+    //     .join("output.png");
+    println!("Writing to {tarpath:?}");
 
     // let color_map = png::ColorType::from();
     // let new_image = image::ImageBuffer::from_raw(width, height, pixels).expect("无法创建新图片");
@@ -57,7 +57,7 @@ async fn compress_image(filepath: String) {
     state.info_png_mut().color.colortype = lodepng::ColorType::PALETTE;
     state.info_png_mut().color.try_set_bitdepth(8);
     state.set_palette(&palette);
-    state.encode_file(output_path, &pixels, width as usize, height as usize);
+    state.encode_file(tarpath, &pixels, width as usize, height as usize);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

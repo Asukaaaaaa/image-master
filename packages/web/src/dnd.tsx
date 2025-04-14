@@ -1,14 +1,12 @@
-import { webview, path } from '@tauri-apps/api';
-import { open } from '@tauri-apps/plugin-fs';
+import { path, webview } from '@tauri-apps/api';
 import { open as open_dialog } from '@tauri-apps/plugin-dialog';
+import { open } from '@tauri-apps/plugin-fs';
 import { curry, identity, pipe, tap } from 'ramda';
 import { onMount, useContext } from 'solid-js';
-import { GlobalContext } from './App';
+import { globalStore } from './App';
 
 export const DnD = () => {
   let root: HTMLDivElement | undefined;
-  const [globalStore, { appendImage }] = useContext(GlobalContext);
-
   onMount(() => {
     // ? tauri 事件和 web 事件只能触发其中一个，通过 dragDropEnabled 切换
     webview.getCurrentWebview().onDragDropEvent(async (e) => {
@@ -44,7 +42,7 @@ export const DnD = () => {
         type: `image/${path.extname(filepath)}`.toLowerCase(),
       });
       const blob_url = URL.createObjectURL(blob);
-      appendImage!({
+      globalStore.appendImage({
         blob_url,
         local_path: filepath,
         stat: { ...stat, basename: await path.basename(filepath) },

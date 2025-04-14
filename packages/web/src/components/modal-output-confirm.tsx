@@ -1,5 +1,8 @@
+import { open } from '@tauri-apps/plugin-dialog';
 import { createSignal, onMount } from 'solid-js';
 import { render } from 'solid-js/web';
+import { globalStore } from '../App';
+import { showImageAction } from './modal-image-action';
 
 type ModalExpose = {
   toggleVisible?: (val?: boolean) => void;
@@ -11,26 +14,44 @@ type ModalProps = {
 const Modal = (props: ModalProps) => {
   let root: HTMLDialogElement | undefined;
 
-  const [path, setPath] = createSignal('');
+  const [visible, setVisible] = createSignal(false);
 
   onMount(() => {
     props.expose ??= {};
     props.expose.toggleVisible = (val?: boolean) => {
-      val ? root?.showModal() : root?.close();
+      const el = root!;
+      const foo = val ?? !el.open;
+      foo ? el.showModal() : el.close();
+      setVisible(foo);
     };
     props.onMounted?.();
   });
 
+  async function onChooseFolder() {
+    globalStore.setOutputDir((await open({ directory: true })) ?? '');
+  }
+  function onConfirm() {
+    showImageAction();
+  }
+
   return (
     <dialog ref={root} class="modal">
       <div class="modal-box">
-        <h3 class="text-lg font-bold">Hello!</h3>
-        <p class="py-4">请先选择输出目录</p>
+        <div class="flex items-center gap-x-4">
+          <button class="btn btn-soft" onclick={onChooseFolder}>
+            选择输出目录
+          </button>
+          <p class="line-clamp">{globalStore.output_dir}</p>
+        </div>
         <div class="modal-action">
-          <button class="btn" onclick={() => root?.close()}>
+          <button class="btn btn-soft" onclick={() => root?.close()}>
             取消
           </button>
-          <button class="btn" onclick={console.log}>
+          <button
+            class="btn btn-soft btn-accent"
+            disabled={!globalStore.output_dir}
+            onclick={onConfirm}
+          >
             确认
           </button>
         </div>
