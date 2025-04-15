@@ -2,15 +2,17 @@
   "name": "example-with-tailwindcss",
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
+    "dev": "vinxi dev --port 1420",
     "build": "vinxi build",
     "start": "vinxi start"
   },
   "dependencies": {
+    "@kobalte/tailwindcss": "^0.9.0",
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lucide-solid": "^0.488.0",
     "solid-js": "^1.9.5",
     "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
