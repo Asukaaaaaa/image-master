@@ -50,6 +50,10 @@ const Modal = (props: ModalProps) => {
     props.onMounted?.();
   });
 
+  function getPercentage(num: number) {
+    return `${Math.sign(num) > 0 ? '-' : '+'}${Math.trunc(Math.round(Math.abs(num * 100)))}%`;
+  }
+
   return (
     <dialog ref={root} class="modal">
       <div class="modal-box size-full max-w-full rounded-none">
@@ -63,7 +67,7 @@ const Modal = (props: ModalProps) => {
                   <div
                     class="w-(--percent) h-6 bg-[#92ed14] rounded-xl"
                     style={{
-                      '--percent': `${+(val.new_stat.size / val.stat.size).toFixed(2) * 100}%`,
+                      '--percent': `${+(val.new_stat.size / val.stat.size * 100).toFixed(2)}%`,
                     }}
                   />
                 </div>
@@ -71,7 +75,7 @@ const Modal = (props: ModalProps) => {
                   {prettyBytes(val.new_stat.size)}
                 </span>
                 <span class="font-semibold">
-                  {`-${+((val.stat.size - val.new_stat.size) / val.stat.size).toFixed(2) * 100}%`}
+                  {getPercentage((val.stat.size - val.new_stat.size) / val.stat.size)}
                 </span>
               </div>
             )}

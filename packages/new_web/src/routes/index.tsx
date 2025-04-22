@@ -21,10 +21,14 @@ export default function Home() {
       </p>
       <p class="my-4">
         <span>Home</span>
-        {' - '}
+        <span> - </span>
         <A href="/about" class="text-sky-600 hover:underline">
           About Page
-        </A>{' '}
+        </A>
+        <span> - </span>
+        <A href="/webgpu" class="text-pink-600 hover:underline">
+          webgpu
+        </A>
       </p>
     </main>
   );

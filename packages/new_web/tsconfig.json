@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -10,7 +11,7 @@
     "allowJs": true,
     "noEmit": true,
     "strict": true,
-    "types": ["vinxi/types/client"],
+    "types": ["vinxi/types/client", "@webgpu/types"],
     "isolatedModules": true,
     "paths": {
       "~/*": ["./src/*"]
